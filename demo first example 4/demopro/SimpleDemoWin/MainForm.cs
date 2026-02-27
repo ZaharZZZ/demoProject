@@ -163,5 +163,43 @@ namespace SimpleDemoWin
             allClients_ = model.ReadAllClients();
             ShowClients(allClients_);
         }
+
+        private void EditButton_Click(object sender, EventArgs e)
+        {
+            // Проверяем, выбран ли клиент
+            if (ClientsListBox.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите клиента для редактирования", "Информация",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            Client selectedClient = ClientsListBox.SelectedItem as Client;
+            if (selectedClient == null)
+                return;
+
+            // Открываем форму редактирования с выбранным клиентом
+            AddNewClientForm editForm = new AddNewClientForm(model, selectedClient);
+            if (editForm.ShowDialog() == DialogResult.OK)
+            {
+                // Получаем обновлённого клиента из формы
+                Client updatedClient = editForm.addingClient;
+
+                // Сохраняем изменения в базу данных
+                try
+                {
+                    model.UpdateClient(updatedClient);
+                    // Обновляем список клиентов на форме
+                    updateClients();
+                    // Если нужно, сразу показываем обновлённую информацию в карточке
+                    Card.ShowClientInfo(updatedClient);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при сохранении изменений: {ex.Message}", "Ошибка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
 }

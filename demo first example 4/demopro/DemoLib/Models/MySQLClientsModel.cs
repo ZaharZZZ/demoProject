@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
-using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI;
+//using MySql.Data.MySqlClient;
+using MySqlConnector;
+//using MySqlX.XDevAPI;
 
 namespace DemoLib.Models.Clients
 {
     public class MySQLClientsModel : IClientsModel
     {
-        private const string connStr = "server=localhost;user=root;database=clients_db;password=123456;port=3307;";
+        private const string connStr = "server=127.0.0.1;user=root;database=clients_db;password=vertrigo;port=3306;";
         public int GetClientsCount()
         {
             try
@@ -148,6 +149,42 @@ namespace DemoLib.Models.Clients
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка при добавлении клиента: {ex.Message}", ex);
+            }
+        }
+
+        // Добавьте этот метод в класс MySQLClientsModel
+        public void UpdateClient(Client client)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connStr))
+                {
+                    connection.Open();
+
+                    string sql = @"UPDATE clientsinfo 
+                           SET clientName = @clientName, 
+                               phone = @phone, 
+                               mail = @mail, 
+                               description = @description, 
+                               imagePath = @imagePath 
+                           WHERE id = @id";
+
+                    using (MySqlCommand command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@id", client.ID);
+                        command.Parameters.AddWithValue("@clientName", client.Name);
+                        command.Parameters.AddWithValue("@phone", client.Phone);
+                        command.Parameters.AddWithValue("@mail", client.Mail);
+                        command.Parameters.AddWithValue("@description", client.Description);
+                        command.Parameters.AddWithValue("@imagePath", client.ImagePath);
+
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка при обновлении клиента: {ex.Message}", ex);
             }
         }
     }    

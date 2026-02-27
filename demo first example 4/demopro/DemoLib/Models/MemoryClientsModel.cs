@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace DemoLib.Models
 {
@@ -56,6 +57,18 @@ namespace DemoLib.Models
         public void DeleteClient(int a)
         {
            
+        }
+        public void UpdateClient(Client client)
+        {
+            var existing = allClients_.FirstOrDefault(c => c.ID == client.ID);
+            if (existing != null)
+            {
+                existing.Name = client.Name;
+                existing.Description = client.Description;
+                existing.Phone = client.Phone;
+                existing.Mail = client.Mail;
+                existing.ImagePath = client.ImagePath;
+            }
         }
     }
 }
