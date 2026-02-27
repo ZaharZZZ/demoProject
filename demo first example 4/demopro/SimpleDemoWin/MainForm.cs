@@ -201,5 +201,19 @@ namespace SimpleDemoWin
                 }
             }
         }
+
+        private void ClientsListBox_DoubleClick(object sender, EventArgs e)
+        {
+            if (ClientsListBox.SelectedItem == null)
+                return;
+
+            Client selectedClient = ClientsListBox.SelectedItem as Client;
+            if (selectedClient == null)
+                return;
+
+            // Открываем форму заказов
+            OrdersForm ordersForm = new OrdersForm(selectedClient, model);
+            ordersForm.ShowDialog(this);
+        }
     }
 }

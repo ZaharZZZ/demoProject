@@ -44,6 +44,7 @@
             this.toolStrip1.SuspendLayout();
             this.ContentView.SuspendLayout();
             this.SuspendLayout();
+            this.ClientsListBox.DoubleClick += ClientsListBox_DoubleClick;
 
             // 
             // panel1

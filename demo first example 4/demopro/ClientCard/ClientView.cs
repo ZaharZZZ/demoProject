@@ -6,13 +6,17 @@ using System;
 
 namespace ClientCard
 {
-    public partial class ClientView: UserControl, IClientView
+    public partial class ClientView : UserControl, IClientView
     {
         private Color defaultColor = Color.FromArgb(255, 192, 128);
         private Color enteringColor = Color.FromArgb(255, 140, 0);
         private Client client_;
 
+        // Событие для одинарного клика (используется в текущем коде)
         public event Action<Client> SelectedClient;
+
+        // Событие для двойного клика (для открытия заказов)
+        public event Action<Client> ClientDoubleClick;
 
         public ClientView()
         {
@@ -23,7 +27,10 @@ namespace ClientCard
                 control.MouseEnter += ClientView_MouseEnter;
                 control.MouseLeave += ClientView_MouseLeave;
                 control.MouseClick += ClientView_MouseClick;
+                control.DoubleClick += ClientView_DoubleClick; // подписка на двойной клик
             }
+            // Подписка самого контрола
+            this.DoubleClick += ClientView_DoubleClick;
         }
 
         public void ShowClientInfo(Client client)
@@ -46,17 +53,18 @@ namespace ClientCard
         {
             Visible = true;
         }
+
         public void HideView()
         {
             Visible = false;
         }
 
-        private void ClientView_MouseEnter(object sender, System.EventArgs e)
+        private void ClientView_MouseEnter(object sender, EventArgs e)
         {
             this.BackColor = enteringColor;
         }
 
-        private void ClientView_MouseLeave(object sender, System.EventArgs e)
+        private void ClientView_MouseLeave(object sender, EventArgs e)
         {
             this.BackColor = defaultColor;
         }
@@ -65,15 +73,22 @@ namespace ClientCard
         {
             SelectedClient?.Invoke(client_);
         }
+
+        private void ClientView_DoubleClick(object sender, EventArgs e)
+        {
+            ClientDoubleClick?.Invoke(client_);
+        }
+
         public void ClearClientInfo()
         {
             TitleLabel.Text = "Клиенты отсутствуют";
             DescriptionLabel.Text = "";
             PhoneLabel.Text = "";
             MailLabel.Text = "";
-            AvatarBox.Image.Dispose();
+            AvatarBox.Image?.Dispose();
             AvatarBox.Image = null;
         }
+
         public void SetAvatarProperties(Size size, Point location)
         {
             AvatarBox.Size = size;

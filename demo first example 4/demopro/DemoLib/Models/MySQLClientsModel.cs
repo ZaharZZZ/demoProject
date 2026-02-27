@@ -64,17 +64,19 @@ namespace DemoLib.Models.Clients
 
                     foreach (Client client in clients)
                     {
-                        string orderQuery = "SELECT article, date, price, count FROM orders WHERE idclient = " + client.ID;
+                        // В методе ReadAllClients, внутри цикла foreach (Client client in clients)
+                        string orderQuery = "SELECT id, article, date, price, count FROM orders WHERE idclient = " + client.ID;
                         MySqlCommand orderCommand = new MySqlCommand(orderQuery, connection);
                         using (MySqlDataReader orderReader = orderCommand.ExecuteReader())
                         {
                             while (orderReader.Read())
                             {
                                 OrderRecord orderRecord = new OrderRecord();
-                                orderRecord.NameProduct = orderReader.GetString(0);
-                                orderRecord.SaleDate = orderReader.GetDateTime(1);
-                                orderRecord.Price = orderReader.GetDouble(2);
-                                orderRecord.Count = orderReader.GetInt32(3);
+                                orderRecord.Id = orderReader.GetInt32(0);          // читаем ID
+                                orderRecord.NameProduct = orderReader.GetString(1);
+                                orderRecord.SaleDate = orderReader.GetDateTime(2);
+                                orderRecord.Price = orderReader.GetDouble(3);
+                                orderRecord.Count = orderReader.GetInt32(4);
 
                                 client.order.AddRecord(orderRecord);
                             }
@@ -185,6 +187,62 @@ namespace DemoLib.Models.Clients
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка при обновлении клиента: {ex.Message}", ex);
+            }
+        }
+
+
+        // Добавление заказа
+        public void AddOrder(int clientId, OrderRecord record)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connStr))
+                {
+                    connection.Open();
+
+                    string sql = @"INSERT INTO orders (idclient, article, date, price, count) 
+                           VALUES (@clientId, @article, @date, @price, @count);
+                           SELECT LAST_INSERT_ID();"; // Возвращаем ID новой записи
+
+                    using (MySqlCommand command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@clientId", clientId);
+                        command.Parameters.AddWithValue("@article", record.NameProduct);
+                        command.Parameters.AddWithValue("@date", record.SaleDate);
+                        command.Parameters.AddWithValue("@price", record.Price);
+                        command.Parameters.AddWithValue("@count", record.Count);
+
+                        int newId = Convert.ToInt32(command.ExecuteScalar());
+                        record.Id = newId; // Сохраняем сгенерированный ID
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка при добавлении заказа: {ex.Message}", ex);
+            }
+        }
+
+        // Удаление заказа по ID
+        public void DeleteOrder(int orderId)
+        {
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connStr))
+                {
+                    connection.Open();
+
+                    string sql = "DELETE FROM orders WHERE id = @orderId";
+                    using (MySqlCommand command = new MySqlCommand(sql, connection))
+                    {
+                        command.Parameters.AddWithValue("@orderId", orderId);
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка при удалении заказа: {ex.Message}", ex);
             }
         }
     }    
