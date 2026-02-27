@@ -60,6 +60,10 @@ CREATE TABLE `orders` (
   `count` int NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 /*!40101 SET character_set_client = @saved_cs_client */;
+ЭТО НАДО
+ALTER TABLE orders ADD COLUMN id INT AUTO_INCREMENT PRIMARY KEY FIRST;
+
+
 
 --
 -- Dumping data for table `orders`
